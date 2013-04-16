@@ -20,6 +20,7 @@ class TestAccounts(unittest.TestCase):
         auth_token = AUTH_TOKEN
 
         self.client = plivo.RestAPI(auth_id, auth_token)
+        self.some_timezones = ['Pacific/Apia', 'Pacific/Midway']
 
     def test_get_account(self):
         response = self.client.get_account()
@@ -53,6 +54,70 @@ class TestAccounts(unittest.TestCase):
 
         response = self.client.get_account()
         self.assertEqual(random_address, response[1]['address'])
+
+    def test_modify_account_restricted_params(self):
+        res = self.client.get_account()[1]
+        
+        random_name = "".join(random.sample('abcdef ghijkl', 10))
+        random_city = "".join(random.sample('abcdef ghijkl', 10))
+        random_address = "".join(random.sample('abcdef ghijklmnopqr 123456789', 20))
+        random_state = "".join(random.sample('abcdefghijkl', 6))
+        
+        random_timezone = ''
+        if res['timezone'] in self.some_timezones:
+            index = self.some_timezones.index(res['timezone'])
+            if index != 0:
+                random_timezone = self.some_timezones[0]
+            else:
+                random_timezone = self.some_timezones[1]
+        else:
+            random_timezone = self.some_timezones[0]
+
+        random_cashcredit = "".join(random.sample('97654', 4))
+        while(1):
+            if random_cashcredit != res['cash_credits']:
+                break
+            random_cashcredit = "".join(random.sample('97654', 4))
+
+        params = {
+            'name': random_name,
+            'city': random_city,
+            'address': random_address,
+            'account_type': 'dasghfdsg',
+            'auth_id': 'gadfgsfsdfdsgs',
+            'auto_recharge': not(res['auto_recharge']),
+            'cash_credits': random_cashcredit,
+            'created': "1952-05-04",
+            'enabled': not(res['enabled']),
+            'resource_uri': '/akjslsjkls/dsfg',
+            'state': random_state,
+            'timezone': random_timezone,
+        }
+        self.client.modify_account(params)
+
+        r = self.client.get_account()[1]
+
+        #These params should be modified
+        self.assertEqual(r['name'], params['name'])
+        self.assertEqual(r['city'], params['city'])
+        self.assertEqual(r['address'], params['address'])
+        self.assertEqual(r['state'], params['state'])
+        self.assertEqual(r['timezone'], params['timezone'])
+    
+        #These params should not be modified
+        self.assertEqual(r['account_type'], res['account_type'])
+        self.assertEqual(r['auth_id'], res['auth_id'])
+        self.assertEqual(r['auto_recharge'], res['auto_recharge'])
+        self.assertEqual(r['created'], res['created'])
+        self.assertEqual(r['enabled'], res['enabled'])
+        self.assertEqual(r['resource_uri'], res['resource_uri'])
+
+        self.assertNotEqual(r['account_type'], params['account_type'])
+        self.assertNotEqual(r['auth_id'], params['auth_id'])
+        self.assertNotEqual(r['auto_recharge'], params['auto_recharge'])
+        self.assertNotEqual(r['created'], params['created'])
+        self.assertNotEqual(r['enabled'], params['enabled'])
+        self.assertNotEqual(r['resource_uri'], params['resource_uri'])
 
 
     def test_get_subaccounts(self):
