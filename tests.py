@@ -141,8 +141,19 @@ class TestAccounts(unittest.TestCase):
         auth_id = json_response["auth_id"]
         response = self.client.get_subaccount(dict(subauth_id=auth_id))
         self.assertEqual(200, response[0])
+        temp_name = "abcdef"
+        self.client.modify_subaccount({'subauth_id': auth_id, 'name': temp_name,
+                                       'enabled': False})
+        response = self.client.get_subaccount({'subauth_id': auth_id})[1]
+        #check modified details
+        self.assertEqual(response['enabled'], False)
+        self.assertEqual(response['name'], temp_name)
+
         response = self.client.delete_subaccount(dict(subauth_id=auth_id))
         self.assertEqual(204, response[0])
+        # Deleted sub account should not exist
+        response = self.client.get_subaccount({'subauth_id': auth_id})[1]
+        self.assertEqual(response['error'], 'not found')
 
 
 class TestApplication(unittest.TestCase):
