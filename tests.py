@@ -30,6 +30,31 @@ class TestAccounts(unittest.TestCase):
         for key in valid_keys:
             self.assertTrue(key in json_response)
 
+    def test_modify_account_name(self):
+        random_name = "".join(random.sample('abcdef ghijkl', 10))
+        params = {'name': random_name}
+        self.client.modify_account(params)
+
+        response = self.client.get_account()
+        self.assertEqual(random_name, response[1]['name'])
+
+    def test_modify_account_city(self):
+        random_city = "".join(random.sample('abcdef ghijkl', 10))
+        params = {'city': random_city}
+        self.client.modify_account(params)
+
+        response = self.client.get_account()
+        self.assertEqual(random_city, response[1]['city'])
+
+    def test_modify_account_address(self):
+        random_address = "".join(random.sample('abcdef ghijklmnopqr 123456789', 20))
+        params = {'address': random_address}
+        self.client.modify_account(params)
+
+        response = self.client.get_account()
+        self.assertEqual(random_address, response[1]['address'])
+
+
     def test_get_subaccounts(self):
         response = self.client.get_subaccounts()
         self.assertEqual(200, response[0])
