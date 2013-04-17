@@ -244,5 +244,24 @@ class TestEndpoint(unittest.TestCase):
         self.assertEqual(response[1]['error'], 'not found')
 
 
+class TestPricing(unittest.TestCase):
+    def setUp(self):
+        auth_id = AUTH_ID
+        auth_token = AUTH_TOKEN
+        self.client = plivo.RestAPI(auth_id, auth_token)
+
+    def test_pricing(self):
+        response = self.client.pricing({'country_iso': 'US'})
+        self.assertEqual(200, response[0])
+        valid_keys = ["country", "api_id", 'country_code', 'country_iso',
+                      'phone_numbers', 'voice', 'message']
+        json_response = response[1]
+        for key in valid_keys:
+            self.assertTrue(key in json_response)
+
+    def test_invalid_country(self):
+        response = self.client.pricing({'country_iso': 'USSDGF'})
+        self.assertTrue("error" in response[1])
+
 if __name__ == "__main__":
     unittest.main()
