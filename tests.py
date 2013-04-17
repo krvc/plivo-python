@@ -328,7 +328,7 @@ class TestCarrier(unittest.TestCase):
         self.assertEqual(response[1]['ip_set'], params['ip_set'])
 
         #modify carrier
-        new_params = {'name': 'hdsfgdsfg', 'ip_set': '192.168.1.127',
+        new_params = {'name': 'hdsfgdsfg', 'ip_set': '192.168.1.124',
                       'carrier_id': carrier_id}
         response = self.client.modify_incoming_carrier(new_params)
         self.assertEqual(202, response[0])
@@ -348,8 +348,21 @@ class TestCarrier(unittest.TestCase):
         self.assertTrue("error" in response[1])
 
         
+class TestConference(unittest.TestCase):
+    def setUp(self):
+        auth_id = AUTH_ID
+        auth_token = AUTH_TOKEN
+        self.client = plivo.RestAPI(auth_id, auth_token)
 
-    
+
+    def test_get_all_conferences(self):
+        response = self.client.get_live_conferences()
+        self.assertEqual(200, response[0])
+        valid_keys = ['conferences', 'api_id']
+        json_response = response[1]
+        for key in valid_keys:
+            self.assertTrue(key in json_response)
+
 
 if __name__ == "__main__":
     unittest.main()
