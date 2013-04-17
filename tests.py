@@ -280,6 +280,22 @@ class TestRecording(unittest.TestCase):
             self.assertTrue(key in json_response)
 
 
+class TestNumber(unittest.TestCase):
+    def setUp(self):
+        auth_id = AUTH_ID
+        auth_token = AUTH_TOKEN
+        self.client = plivo.RestAPI(auth_id, auth_token)
+
+    
+    def test_get_numbers(self):
+        response = self.client.get_numbers()
+        self.assertEqual(200, response[0])
+        valid_keys = ['meta', 'objects', 'api_id']
+        json_response = response[1]
+        for key in valid_keys:
+            self.assertTrue(key in json_response)
+
+
 
 if __name__ == "__main__":
     unittest.main()
