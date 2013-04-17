@@ -14,6 +14,8 @@ except ImportError:
                         "and AUTH_TOKEN as environ values.")
 
 client = None
+random_letter = lambda: random.choice(string.ascii_letters)
+random_string = lambda len: ''.join(random_letter() for i in range(len))
 
 
 class TestAccounts(unittest.TestCase):
@@ -47,7 +49,7 @@ class TestAccounts(unittest.TestCase):
         self.assertEqual(random_city, response[1]['city'])
 
     def test_modify_account_address(self):
-        random_address = "".join(random.sample('abcdef ghijklmnopqr 123456789', 20))
+        random_address = random_string(20)
         params = {'address': random_address}
         self.client.modify_account(params)
 
@@ -56,12 +58,12 @@ class TestAccounts(unittest.TestCase):
 
     def test_modify_account_restricted_params(self):
         res = self.client.get_account()[1]
-        
+
         random_name = "".join(random.sample('abcdef ghijkl', 10))
         random_city = "".join(random.sample('abcdef ghijkl', 10))
         random_address = "".join(random.sample('abcdef ghijklmnopqr 123456789', 20))
         random_state = "".join(random.sample('abcdefghijkl', 6))
-        
+
         random_timezone = ''
         if res['timezone'] in self.some_timezones:
             index = self.some_timezones.index(res['timezone'])
@@ -102,7 +104,7 @@ class TestAccounts(unittest.TestCase):
         self.assertEqual(r['address'], params['address'])
         self.assertEqual(r['state'], params['state'])
         self.assertEqual(r['timezone'], params['timezone'])
-    
+
         #These params should not be modified
         self.assertEqual(r['account_type'], res['account_type'])
         self.assertEqual(r['auth_id'], res['auth_id'])
@@ -128,8 +130,6 @@ class TestAccounts(unittest.TestCase):
             self.assertTrue(key in json_response)
 
     def test_subaccount_crud(self):
-        random_letter = lambda: random.choice(string.ascii_letters)
-        random_name = ''.join(random_letter() for i in range(8))
         response = self.client.create_subaccount(dict(name=random_name,
                                                  enabled=True))
         self.assertEqual(201, response[0])
@@ -207,12 +207,12 @@ class TestEndpoint(unittest.TestCase):
         for key in valid_keys:
             self.assertTrue(key in json_response)
 
-    
+
     def test_endpoint_crud(self):
         params = {'username': 'agdrasg', 'password': 'ahfdsgdf', 'alias': 'asasddas'}
         response = self.client.create_endpoint(params)
         self.assertEqual(201, response[0])
-        
+
         endpoint_id = response[1]['endpoint_id']
 
         response = self.client.get_endpoint({'endpoint_id': endpoint_id})
@@ -261,7 +261,7 @@ class TestRecording(unittest.TestCase):
     def setUp(self):
         self.client = get_client(AUTH_ID, AUTH_TOKEN)
 
-    
+
     def test_get_all_recordings(self):
         response = self.client.get_recordings()
         self.assertEqual(200, response[0])
@@ -275,7 +275,7 @@ class TestNumber(unittest.TestCase):
     def setUp(self):
         self.client = get_client(AUTH_ID, AUTH_TOKEN)
 
-    
+
     def test_get_numbers(self):
         response = self.client.get_numbers()
         self.assertEqual(200, response[0])
@@ -334,7 +334,7 @@ class TestCarrier(unittest.TestCase):
         self.assertEqual(404, response[0])
         self.assertTrue("error" in response[1])
 
-        
+
 class TestConference(unittest.TestCase):
     def setUp(self):
         self.client = get_client(AUTH_ID, AUTH_TOKEN)
