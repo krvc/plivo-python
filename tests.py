@@ -18,11 +18,14 @@ random_letter = lambda: random.choice(string.ascii_letters)
 random_string = lambda len: ''.join(random_letter() for i in range(len))
 
 
-class TestAccounts(unittest.TestCase):
+class PlivoTest(unittest.TestCase):
+    "Adds a plivo client in setup"
     def setUp(self):
         self.client = get_client(AUTH_ID, AUTH_TOKEN)
         self.some_timezones = ['Pacific/Apia', 'Pacific/Midway']
 
+
+class TestAccounts(PlivoTest):
     def test_get_account(self):
         response = self.client.get_account()
         self.assertEqual(200, response[0])
@@ -156,10 +159,7 @@ class TestAccounts(unittest.TestCase):
         self.assertEqual(response['error'], 'not found')
 
 
-class TestApplication(unittest.TestCase):
-    def setUp(self):
-        self.client = get_client(AUTH_ID, AUTH_TOKEN)
-
+class TestApplication(PlivoTest):
     def test_get_applications(self):
         response = self.client.get_applications()
         self.assertEqual(200, response[0])
@@ -197,10 +197,7 @@ class TestApplication(unittest.TestCase):
         self.assertEqual('not found', response[1]['error'])
 
 
-class TestEndpoint(unittest.TestCase):
-    def setUp(self):
-        self.client = get_client(AUTH_ID, AUTH_TOKEN)
-
+class TestEndpoint(PlivoTest):
     def test_get_endpoints(self):
         response = self.client.get_endpoints()
         self.assertEqual(200, response[0])
@@ -242,10 +239,7 @@ class TestEndpoint(unittest.TestCase):
         self.assertEqual(response[1]['error'], 'not found')
 
 
-class TestPricing(unittest.TestCase):
-    def setUp(self):
-        self.client = get_client(AUTH_ID, AUTH_TOKEN)
-
+class TestPricing(PlivoTest):
     def test_pricing(self):
         response = self.client.pricing({'country_iso': 'US'})
         self.assertEqual(200, response[0])
@@ -260,10 +254,7 @@ class TestPricing(unittest.TestCase):
         self.assertTrue("error" in response[1])
 
 
-class TestRecording(unittest.TestCase):
-    def setUp(self):
-        self.client = get_client(AUTH_ID, AUTH_TOKEN)
-
+class TestRecording(PlivoTest):
     def test_get_all_recordings(self):
         response = self.client.get_recordings()
         self.assertEqual(200, response[0])
@@ -273,10 +264,7 @@ class TestRecording(unittest.TestCase):
             self.assertTrue(key in json_response)
 
 
-class TestNumber(unittest.TestCase):
-    def setUp(self):
-        self.client = get_client(AUTH_ID, AUTH_TOKEN)
-
+class TestNumber(PlivoTest):
     def test_get_numbers(self):
         response = self.client.get_numbers()
         self.assertEqual(200, response[0])
@@ -286,10 +274,7 @@ class TestNumber(unittest.TestCase):
             self.assertTrue(key in json_response)
 
 
-class TestCarrier(unittest.TestCase):
-    def setUp(self):
-        self.client = get_client(AUTH_ID, AUTH_TOKEN)
-
+class TestCarrier(PlivoTest):
     def test_incoming_carriers(self):
         response = self.client.get_incoming_carriers()
         self.assertEqual(200, response[0])
@@ -335,10 +320,7 @@ class TestCarrier(unittest.TestCase):
         self.assertTrue("error" in response[1])
 
 
-class TestConference(unittest.TestCase):
-    def setUp(self):
-        self.client = get_client(AUTH_ID, AUTH_TOKEN)
-
+class TestConference(PlivoTest):
     def test_get_all_conferences(self):
         response = self.client.get_live_conferences()
         self.assertEqual(200, response[0])
