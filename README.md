@@ -25,6 +25,8 @@ Example code to make a call
 
     response = p.make_call(params)
 
+The response will always be a tuple of two elements. The first element is the HTTP status code and second is the dictionary from the API. More details available at: https://www.plivo.com/docs/
+
 
 Running Tests
 -----------------------
