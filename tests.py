@@ -268,6 +268,7 @@ class TestCarrier(PlivoTest):
         valid_keys = ['meta', 'objects', 'api_id']
         self.check_status_and_keys(200, valid_keys, response)
 
+
     def test_incoming_carrier_crud(self):
         random_name = random_string(10)
         params = {'name': random_name, 'ip_set': '192.168.1.143'}
@@ -315,6 +316,12 @@ class TestConference(PlivoTest):
 class TestMessage(PlivoTest):
     def test_get_messages(self):
         response = self.client.get_messages()
+        valid_keys = ['meta', 'objects', 'api_id']
+        self.check_status_and_keys(200, valid_keys, response)
+
+class TestCdr(PlivoTest):
+    def test_get_all_cdrs(self):
+        response = self.client.get_cdrs()
         valid_keys = ['meta', 'objects', 'api_id']
         self.check_status_and_keys(200, valid_keys, response)
 
