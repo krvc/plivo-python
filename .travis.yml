@@ -1,11 +1,10 @@
---- 
+---
 language: python
 install: pip install -r requirements.txt --use-mirrors
-python: 
-- "2.6"
+python:
 - "2.7"
-env: 
-  global: 
+env:
+  global:
   - secure: |-
       ahgWHHRdu65OLx9QGXBve21/kzn1SG5kkMT041+cq+WL3H0A/Ne4DLof1vft
       j1fRxx79k4+FAASZCBIKbNJ+5j/IpUynzPiNNzZp8aRQbWeaypTpxb4ZWyNh
