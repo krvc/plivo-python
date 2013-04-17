@@ -13,13 +13,12 @@ except ImportError:
         raise Exception("Create a auth_secrets.py file or set AUTH_ID "
                         "and AUTH_TOKEN as environ values.")
 
+client = None
+
 
 class TestAccounts(unittest.TestCase):
     def setUp(self):
-        auth_id = AUTH_ID
-        auth_token = AUTH_TOKEN
-
-        self.client = plivo.RestAPI(auth_id, auth_token)
+        self.client = get_client(AUTH_ID, AUTH_TOKEN)
         self.some_timezones = ['Pacific/Apia', 'Pacific/Midway']
 
     def test_get_account(self):
@@ -158,9 +157,7 @@ class TestAccounts(unittest.TestCase):
 
 class TestApplication(unittest.TestCase):
     def setUp(self):
-        auth_id = AUTH_ID
-        auth_token = AUTH_TOKEN
-        self.client = plivo.RestAPI(auth_id, auth_token)
+        self.client = get_client(AUTH_ID, AUTH_TOKEN)
 
     def test_get_applications(self):
         response = self.client.get_applications()
@@ -200,9 +197,7 @@ class TestApplication(unittest.TestCase):
 
 class TestEndpoint(unittest.TestCase):
     def setUp(self):
-        auth_id = AUTH_ID
-        auth_token = AUTH_TOKEN
-        self.client = plivo.RestAPI(auth_id, auth_token)
+        self.client = get_client(AUTH_ID, AUTH_TOKEN)
 
     def test_get_endpoints(self):
         response = self.client.get_endpoints()
@@ -246,9 +241,7 @@ class TestEndpoint(unittest.TestCase):
 
 class TestPricing(unittest.TestCase):
     def setUp(self):
-        auth_id = AUTH_ID
-        auth_token = AUTH_TOKEN
-        self.client = plivo.RestAPI(auth_id, auth_token)
+        self.client = get_client(AUTH_ID, AUTH_TOKEN)
 
     def test_pricing(self):
         response = self.client.pricing({'country_iso': 'US'})
@@ -266,9 +259,7 @@ class TestPricing(unittest.TestCase):
 
 class TestRecording(unittest.TestCase):
     def setUp(self):
-        auth_id = AUTH_ID
-        auth_token = AUTH_TOKEN
-        self.client = plivo.RestAPI(auth_id, auth_token)
+        self.client = get_client(AUTH_ID, AUTH_TOKEN)
 
     
     def test_get_all_recordings(self):
@@ -282,9 +273,7 @@ class TestRecording(unittest.TestCase):
 
 class TestNumber(unittest.TestCase):
     def setUp(self):
-        auth_id = AUTH_ID
-        auth_token = AUTH_TOKEN
-        self.client = plivo.RestAPI(auth_id, auth_token)
+        self.client = get_client(AUTH_ID, AUTH_TOKEN)
 
     
     def test_get_numbers(self):
@@ -298,9 +287,7 @@ class TestNumber(unittest.TestCase):
 
 class TestCarrier(unittest.TestCase):
     def setUp(self):
-        auth_id = AUTH_ID
-        auth_token = AUTH_TOKEN
-        self.client = plivo.RestAPI(auth_id, auth_token)
+        self.client = get_client(AUTH_ID, AUTH_TOKEN)
 
 
     def test_incoming_carriers(self):
@@ -350,9 +337,7 @@ class TestCarrier(unittest.TestCase):
         
 class TestConference(unittest.TestCase):
     def setUp(self):
-        auth_id = AUTH_ID
-        auth_token = AUTH_TOKEN
-        self.client = plivo.RestAPI(auth_id, auth_token)
+        self.client = get_client(AUTH_ID, AUTH_TOKEN)
 
 
     def test_get_all_conferences(self):
@@ -363,6 +348,13 @@ class TestConference(unittest.TestCase):
         for key in valid_keys:
             self.assertTrue(key in json_response)
 
+
+def get_client(AUTH_ID, AUTH_TOKEN):
+    if client:
+        return client
+    auth_id = AUTH_ID
+    auth_token = AUTH_TOKEN
+    return plivo.RestAPI(auth_id, auth_token)
 
 if __name__ == "__main__":
     unittest.main()
