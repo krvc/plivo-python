@@ -310,6 +310,43 @@ class TestCarrier(unittest.TestCase):
         json_response = response[1]
         for key in valid_keys:
             self.assertTrue(key in json_response)
+
+
+    def test_incoming_carrier_crud(self):
+        random_name = "".join(random.sample('abcdefghijkl', 10))
+        params = {'name': random_name, 'ip_set': '192.168.1.142'}
+
+        #create incoming carrier
+        response = self.client.create_incoming_carrier(params)
+        self.assertEqual(201, response[0])
+        carrier_id = response[1]['carrier_id']
+
+        #get created carrier and check its details
+        response = self.client.get_incoming_carrier({'carrier_id': carrier_id})
+        self.assertEqual(200, response[0])
+        self.assertEqual(response[1]['name'], params['name'])
+        self.assertEqual(response[1]['ip_set'], params['ip_set'])
+
+        #modify carrier
+        new_params = {'name': 'hdsfgdsfg', 'ip_set': '192.168.1.127',
+                      'carrier_id': carrier_id}
+        response = self.client.modify_incoming_carrier(new_params)
+        self.assertEqual(202, response[0])
+
+        #check modified carrier details
+        response = self.client.get_incoming_carrier({'carrier_id': carrier_id})
+        self.assertEqual(response[1]['name'], new_params['name'])
+        self.assertEqual(response[1]['ip_set'], new_params['ip_set'])
+
+        #delete incoming carrier
+        response = self.client.delete_incoming_carrier({'carrier_id': carrier_id})
+        self.assertEqual(204, response[0])
+
+        #deleted carrier should not be available
+        response = self.client.get_incoming_carrier({'carrier_id': carrier_id})
+        self.assertEqual(404, response[0])
+        self.assertTrue("error" in response[1])
+
         
 
     
