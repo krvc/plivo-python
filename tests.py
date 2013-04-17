@@ -24,6 +24,12 @@ class PlivoTest(unittest.TestCase):
         self.client = get_client(AUTH_ID, AUTH_TOKEN)
         self.some_timezones = ['Pacific/Apia', 'Pacific/Midway']
 
+    def check_status_and_keys(self, status, valid_keys, response):
+        self.assertEqual(status, response[0])
+        json_response = response[1]
+        for key in valid_keys:
+            self.assertTrue(key in json_response)
+
 
 class TestAccounts(PlivoTest):
     def test_get_account(self):
@@ -125,11 +131,8 @@ class TestAccounts(PlivoTest):
 
     def test_get_subaccounts(self):
         response = self.client.get_subaccounts()
-        self.assertEqual(200, response[0])
         valid_keys = ["meta", "api_id", "objects"]
-        json_response = response[1]
-        for key in valid_keys:
-            self.assertTrue(key in json_response)
+        self.check_status_and_keys(200, valid_keys, response)
 
     def test_subaccount_crud(self):
         temp_name = random_string(10)
@@ -162,11 +165,8 @@ class TestAccounts(PlivoTest):
 class TestApplication(PlivoTest):
     def test_get_applications(self):
         response = self.client.get_applications()
-        self.assertEqual(200, response[0])
         valid_keys = ["objects", "api_id", "meta"]
-        json_response = response[1]
-        for key in valid_keys:
-            self.assertTrue(key in json_response)
+        self.check_status_and_keys(200, valid_keys, response)
 
     def test_applications_crud(self):
         params = {'answer_url': 'http://localhost.com',
@@ -200,11 +200,8 @@ class TestApplication(PlivoTest):
 class TestEndpoint(PlivoTest):
     def test_get_endpoints(self):
         response = self.client.get_endpoints()
-        self.assertEqual(200, response[0])
         valid_keys = ["objects", "api_id", "meta"]
-        json_response = response[1]
-        for key in valid_keys:
-            self.assertTrue(key in json_response)
+        self.check_status_and_keys(200, valid_keys, response)
 
     def test_endpoint_crud(self):
         params = {'username': 'agdrasg',
@@ -242,12 +239,9 @@ class TestEndpoint(PlivoTest):
 class TestPricing(PlivoTest):
     def test_pricing(self):
         response = self.client.pricing({'country_iso': 'US'})
-        self.assertEqual(200, response[0])
         valid_keys = ["country", "api_id", 'country_code', 'country_iso',
                       'phone_numbers', 'voice', 'message']
-        json_response = response[1]
-        for key in valid_keys:
-            self.assertTrue(key in json_response)
+        self.check_status_and_keys(200, valid_keys, response)
 
     def test_invalid_country(self):
         response = self.client.pricing({'country_iso': 'USSDGF'})
@@ -257,31 +251,22 @@ class TestPricing(PlivoTest):
 class TestRecording(PlivoTest):
     def test_get_all_recordings(self):
         response = self.client.get_recordings()
-        self.assertEqual(200, response[0])
         valid_keys = ['meta', 'objects', 'api_id']
-        json_response = response[1]
-        for key in valid_keys:
-            self.assertTrue(key in json_response)
+        self.check_status_and_keys(200, valid_keys, response)
 
 
 class TestNumber(PlivoTest):
     def test_get_numbers(self):
         response = self.client.get_numbers()
-        self.assertEqual(200, response[0])
         valid_keys = ['meta', 'objects', 'api_id']
-        json_response = response[1]
-        for key in valid_keys:
-            self.assertTrue(key in json_response)
+        self.check_status_and_keys(200, valid_keys, response)
 
 
 class TestCarrier(PlivoTest):
     def test_incoming_carriers(self):
         response = self.client.get_incoming_carriers()
-        self.assertEqual(200, response[0])
         valid_keys = ['meta', 'objects', 'api_id']
-        json_response = response[1]
-        for key in valid_keys:
-            self.assertTrue(key in json_response)
+        self.check_status_and_keys(200, valid_keys, response)
 
     def test_incoming_carrier_crud(self):
         random_name = random_string(10)
@@ -323,11 +308,15 @@ class TestCarrier(PlivoTest):
 class TestConference(PlivoTest):
     def test_get_all_conferences(self):
         response = self.client.get_live_conferences()
-        self.assertEqual(200, response[0])
         valid_keys = ['conferences', 'api_id']
-        json_response = response[1]
-        for key in valid_keys:
-            self.assertTrue(key in json_response)
+        self.check_status_and_keys(200, valid_keys, response)
+
+
+class TestMessage(PlivoTest):
+    def test_get_messages(self):
+        response = self.client.get_messages()
+        valid_keys = ['meta', 'objects', 'api_id']
+        self.check_status_and_keys(200, valid_keys, response)
 
 
 def get_client(AUTH_ID, AUTH_TOKEN):
