@@ -198,6 +198,50 @@ class TestApplication(unittest.TestCase):
         self.assertEqual('not found', response[1]['error'])
 
 
+class TestEndpoint(unittest.TestCase):
+    def setUp(self):
+        auth_id = AUTH_ID
+        auth_token = AUTH_TOKEN
+        self.client = plivo.RestAPI(auth_id, auth_token)
+
+    def test_get_endpoints(self):
+        response = self.client.get_endpoints()
+        self.assertEqual(200, response[0])
+        valid_keys = ["objects", "api_id", "meta"]
+        json_response = response[1]
+        for key in valid_keys:
+            self.assertTrue(key in json_response)
+
+    
+    def test_endpoint_crud(self):
+        params = {'username': 'agdrasg', 'password': 'ahfdsgdf', 'alias': 'asasddas'}
+        response = self.client.create_endpoint(params)
+        self.assertEqual(201, response[0])
+        
+        endpoint_id = response[1]['endpoint_id']
+
+        response = self.client.get_endpoint({'endpoint_id': endpoint_id})
+        self.assertEqual(200, response[0])
+        #check created endpoint details
+        self.assertEqual(response[1]['alias'], params['alias'])
+
+        #modify endpoint
+        new_params = {'alias': 'new alias fasda', 'endpoint_id': endpoint_id}
+        response = self.client.modify_endpoint(new_params)
+        self.assertEqual(202, response[0])
+
+        #check modified details
+        response = self.client.get_endpoint({'endpoint_id': endpoint_id})
+        self.assertEqual(response[1]['alias'], new_params['alias'])
+
+        #delete endpoint
+        response = self.client.delete_endpoint({'endpoint_id': endpoint_id})
+        self.assertEqual(204, response[0])
+
+        #deleted endpoint should not be available
+        response = self.client.get_endpoint({'endpoint_id': endpoint_id})
+        self.assertEqual(404, response[0])
+        self.assertEqual(response[1]['error'], 'not found')
 
 
 if __name__ == "__main__":
