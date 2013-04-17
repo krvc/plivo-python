@@ -33,7 +33,7 @@ class TestAccounts(unittest.TestCase):
             self.assertTrue(key in json_response)
 
     def test_modify_account_name(self):
-        random_name = "".join(random.sample('abcdef ghijkl', 10))
+        random_name = random_string(10)
         params = {'name': random_name}
         self.client.modify_account(params)
 
@@ -41,7 +41,7 @@ class TestAccounts(unittest.TestCase):
         self.assertEqual(random_name, response[1]['name'])
 
     def test_modify_account_city(self):
-        random_city = "".join(random.sample('abcdef ghijkl', 10))
+        random_city = random_string(10)
         params = {'city': random_city}
         self.client.modify_account(params)
 
@@ -59,10 +59,10 @@ class TestAccounts(unittest.TestCase):
     def test_modify_account_restricted_params(self):
         res = self.client.get_account()[1]
 
-        random_name = "".join(random.sample('abcdef ghijkl', 10))
-        random_city = "".join(random.sample('abcdef ghijkl', 10))
-        random_address = "".join(random.sample('abcdef ghijklmnopqr 123456789', 20))
-        random_state = "".join(random.sample('abcdefghijkl', 6))
+        random_name = random_string(10)
+        random_city = random_string(10)
+        random_address = random_string(10)
+        random_state = random_string(6)
 
         random_timezone = ''
         if res['timezone'] in self.some_timezones:
@@ -120,7 +120,6 @@ class TestAccounts(unittest.TestCase):
         self.assertNotEqual(r['enabled'], params['enabled'])
         self.assertNotEqual(r['resource_uri'], params['resource_uri'])
 
-
     def test_get_subaccounts(self):
         response = self.client.get_subaccounts()
         self.assertEqual(200, response[0])
@@ -142,7 +141,8 @@ class TestAccounts(unittest.TestCase):
         response = self.client.get_subaccount(dict(subauth_id=auth_id))
         self.assertEqual(200, response[0])
 
-        self.client.modify_subaccount({'subauth_id': auth_id, 'name': temp_name,
+        self.client.modify_subaccount({'subauth_id': auth_id,
+                                       'name': temp_name,
                                        'enabled': False})
         response = self.client.get_subaccount({'subauth_id': auth_id})[1]
         #check modified details
@@ -169,7 +169,8 @@ class TestApplication(unittest.TestCase):
             self.assertTrue(key in json_response)
 
     def test_applications_crud(self):
-        params = {'answer_url': 'http://localhost.com', 'app_name': 'testappname'}
+        params = {'answer_url': 'http://localhost.com',
+                  'app_name': 'testappname'}
         response = self.client.create_application(params)
         self.assertEqual(201, response[0])
 
@@ -208,9 +209,10 @@ class TestEndpoint(unittest.TestCase):
         for key in valid_keys:
             self.assertTrue(key in json_response)
 
-
     def test_endpoint_crud(self):
-        params = {'username': 'agdrasg', 'password': 'ahfdsgdf', 'alias': 'asasddas'}
+        params = {'username': 'agdrasg',
+                  'password': 'ahfdsgdf',
+                  'alias': 'asasddas'}
         response = self.client.create_endpoint(params)
         self.assertEqual(201, response[0])
 
@@ -262,7 +264,6 @@ class TestRecording(unittest.TestCase):
     def setUp(self):
         self.client = get_client(AUTH_ID, AUTH_TOKEN)
 
-
     def test_get_all_recordings(self):
         response = self.client.get_recordings()
         self.assertEqual(200, response[0])
@@ -275,7 +276,6 @@ class TestRecording(unittest.TestCase):
 class TestNumber(unittest.TestCase):
     def setUp(self):
         self.client = get_client(AUTH_ID, AUTH_TOKEN)
-
 
     def test_get_numbers(self):
         response = self.client.get_numbers()
@@ -290,7 +290,6 @@ class TestCarrier(unittest.TestCase):
     def setUp(self):
         self.client = get_client(AUTH_ID, AUTH_TOKEN)
 
-
     def test_incoming_carriers(self):
         response = self.client.get_incoming_carriers()
         self.assertEqual(200, response[0])
@@ -299,9 +298,8 @@ class TestCarrier(unittest.TestCase):
         for key in valid_keys:
             self.assertTrue(key in json_response)
 
-
     def test_incoming_carrier_crud(self):
-        random_name = "".join(random.sample('abcdefghijkl', 10))
+        random_name = random_string(10)
         params = {'name': random_name, 'ip_set': '192.168.1.143'}
 
         #create incoming carrier
@@ -327,7 +325,8 @@ class TestCarrier(unittest.TestCase):
         self.assertEqual(response[1]['ip_set'], new_params['ip_set'])
 
         #delete incoming carrier
-        response = self.client.delete_incoming_carrier({'carrier_id': carrier_id})
+        response = self.client.delete_incoming_carrier({'carrier_id':
+                                                        carrier_id})
         self.assertEqual(204, response[0])
 
         #deleted carrier should not be available
@@ -339,7 +338,6 @@ class TestCarrier(unittest.TestCase):
 class TestConference(unittest.TestCase):
     def setUp(self):
         self.client = get_client(AUTH_ID, AUTH_TOKEN)
-
 
     def test_get_all_conferences(self):
         response = self.client.get_live_conferences()
