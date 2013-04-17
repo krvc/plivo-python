@@ -130,7 +130,8 @@ class TestAccounts(unittest.TestCase):
             self.assertTrue(key in json_response)
 
     def test_subaccount_crud(self):
-        response = self.client.create_subaccount(dict(name=random_name,
+        temp_name = random_string(10)
+        response = self.client.create_subaccount(dict(name=temp_name,
                                                  enabled=True))
         self.assertEqual(201, response[0])
         valid_keys = ["auth_id", "api_id", "auth_token"]
@@ -140,7 +141,7 @@ class TestAccounts(unittest.TestCase):
         auth_id = json_response["auth_id"]
         response = self.client.get_subaccount(dict(subauth_id=auth_id))
         self.assertEqual(200, response[0])
-        temp_name = "abcdef"
+
         self.client.modify_subaccount({'subauth_id': auth_id, 'name': temp_name,
                                        'enabled': False})
         response = self.client.get_subaccount({'subauth_id': auth_id})[1]
