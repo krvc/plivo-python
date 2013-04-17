@@ -301,7 +301,7 @@ class TestCarrier(unittest.TestCase):
 
     def test_incoming_carrier_crud(self):
         random_name = "".join(random.sample('abcdefghijkl', 10))
-        params = {'name': random_name, 'ip_set': '192.168.1.142'}
+        params = {'name': random_name, 'ip_set': '192.168.1.143'}
 
         #create incoming carrier
         response = self.client.create_incoming_carrier(params)
