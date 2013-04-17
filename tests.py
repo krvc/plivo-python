@@ -170,5 +170,35 @@ class TestApplication(unittest.TestCase):
         for key in valid_keys:
             self.assertTrue(key in json_response)
 
+    def test_applications_crud(self):
+        params = {'answer_url': 'http://localhost.com', 'app_name': 'testappname'}
+        response = self.client.create_application(params)
+        self.assertEqual(201, response[0])
+
+        app_id = response[1]['app_id']
+        response = self.client.get_application({'app_id': app_id})
+        self.assertEqual(response[1]['app_name'], params['app_name'])
+        self.assertEqual(200, response[0])
+
+        new_params = {'app_name': 'some new test name', 'app_id': app_id}
+        response = self.client.modify_application(new_params)
+        self.assertEqual(202, response[0])
+
+        #check whether app_name modified or not
+        response = self.client.get_application({'app_id': app_id})
+        self.assertEqual(response[1]['app_name'], new_params['app_name'])
+
+        #delete application
+        response = self.client.delete_application({'app_id': app_id})
+        self.assertEqual(204, response[0])
+
+        #deleted application should not be available
+        response = self.client.get_application({'app_id': app_id})
+        self.assertEqual(404, response[0])
+        self.assertEqual('not found', response[1]['error'])
+
+
+
+
 if __name__ == "__main__":
     unittest.main()
