@@ -323,6 +323,13 @@ class TestMessage(PlivoTest):
         valid_keys = ['meta', 'objects', 'api_id']
         self.check_status_and_keys(200, valid_keys, response)
 
+    def test_send_message(self):
+        params = {"src": DEFAULT_FROM_NUMBER, "dst": DEFAULT_TO_NUMBER,
+                  "text": "Testing"}
+        response = self.client.send_message(params)
+        valid_keys = ["message", "message_uuid", "api_id"]
+        self.check_status_and_keys(202, valid_keys, response)
+
 
 def get_client(AUTH_ID, AUTH_TOKEN):
     if client:
