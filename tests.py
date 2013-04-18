@@ -2,6 +2,7 @@ import unittest
 import os
 import random
 import string
+import time
 
 import plivo
 
@@ -270,7 +271,7 @@ class TestNumber(PlivoTest):
         response = self.client.get_number({"number": DEFAULT_FROM_NUMBER})
         valid_keys = ["added_on", "api_id", "application", "carrier", "number",
                       "sms_enabled", "voice_enabled"]
-        self.check_status_and_keys(nu200, valid_keys, response)
+        self.check_status_and_keys(200, valid_keys, response)
         self.assertEqual(DEFAULT_FROM_NUMBER, response[1]["number"])
 
     def test_number_crud(self):
@@ -329,10 +330,34 @@ class TestCarrier(PlivoTest):
 
 
 class TestConference(PlivoTest):
+    def setUp(self):
+        super(TestConference, self).setUp()
+        self.call_params = {'from': DEFAULT_FROM_NUMBER,
+                            'to': DEFAULT_TO_NUMBER,
+                            'answer_url':
+                            'https://guarded-island.herokuapp.com/conference/'
+                            }
+
     def test_get_all_conferences(self):
         response = self.client.get_live_conferences()
         valid_keys = ['conferences', 'api_id']
         self.check_status_and_keys(200, valid_keys, response)
+
+    def test_conference_crud(self):
+        self.client.make_call(self.call_params)
+        #wait some time 
+        time.sleep(8)
+        response = self.client.get_live_conference({'conference_name': 'plivo'})
+        valid_keys = ['conference_name', 'conference_run_time',
+                      'conference_member_count', 'members', 'api_id']
+        self.check_status_and_keys(200, valid_keys, response)
+
+        response = self.client.hangup_conference({'conference_name': 'plivo'})
+        self.assertEqual(204, response[0])
+
+        response = self.client.hangup_all_conferences()
+        self.assertEqual(204, response[0])
+
 
 
 class TestMessage(PlivoTest):
