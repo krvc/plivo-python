@@ -268,7 +268,6 @@ class TestCarrier(PlivoTest):
         valid_keys = ['meta', 'objects', 'api_id']
         self.check_status_and_keys(200, valid_keys, response)
 
-
     def test_incoming_carrier_crud(self):
         random_name = random_string(10)
         params = {'name': random_name, 'ip_set': '192.168.1.143'}
@@ -325,6 +324,12 @@ class TestCdr(PlivoTest):
         valid_keys = ['meta', 'objects', 'api_id']
         self.check_status_and_keys(200, valid_keys, response)
 
+class Live_call(PlivoTest):
+    def test_get_live_calls(self):
+        response = self.client.get_live_calls()
+        valid_keys = ['api_id', 'calls']
+        self.check_status_and_keys(200, valid_keys, response)
+
 
 def get_client(AUTH_ID, AUTH_TOKEN):
     if client:
@@ -332,6 +337,8 @@ def get_client(AUTH_ID, AUTH_TOKEN):
     auth_id = AUTH_ID
     auth_token = AUTH_TOKEN
     return plivo.RestAPI(auth_id, auth_token)
+
+
 
 if __name__ == "__main__":
     unittest.main()
