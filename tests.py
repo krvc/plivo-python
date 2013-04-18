@@ -8,11 +8,12 @@ import plivo
 
 try:
     from auth_secrets import AUTH_ID, AUTH_TOKEN
-    from auth_secrets import DEFAULT_FROM_NUMBER, DEFAULT_TO_NUMBER
+    from auth_secrets import DEFAULT_FROM_NUMBER, DEFAULT_TO_NUMBER, DEFAULT_TO_NUMBER2
 except ImportError:
     AUTH_ID, AUTH_TOKEN = os.getenv("AUTH_ID"), os.getenv("AUTH_TOKEN")
     DEFAULT_FROM_NUMBER = os.getenv("DEFAULT_FROM_NUMBER")
     DEFAULT_TO_NUMBER = os.getenv("DEFAULT_TO_NUMBER")
+    DEFAULT_TO_NUMBER2 = os.getenv("DEFAULT_TO_NUMBER2")
     if not (AUTH_ID and AUTH_TOKEN and
             DEFAULT_FROM_NUMBER and DEFAULT_TO_NUMBER):
         raise Exception("Create a auth_secrets.py file or set AUTH_ID "
@@ -357,15 +358,42 @@ class TestConference(PlivoTest):
 
         response = self.client.hangup_all_conferences()
         self.assertEqual(204, response[0])
-
-
-
+        
+        def test_members_hangup_member(self):
+        	self.client.make_call(self.call_params)
+        	self.call_params['to'] = DEFAULT_TO_NUMBER2
+        	self.client.make_call(self.call_params)
+        	#wait some time
+        	time.sleep(8)
+        	response = self.client.get_live_conference({'conference_name':'plivo'}]
+        	
+        	#2 members in conference
+        	self.assertEqual(2, len(response[1]['members']))
+        	member_id = response[1]['members'][0]['member_id']
+        	another_member_id = response[1]['members'][1]['member_id']
+        	response = self.client.hangup_member({'member_id': member_id,'conference_name': 'plivo'})
+        	self.assertEqual(204, response[0])
+        	response = self.client.get_live_conference({'conference_name':'plivo'})
+        	#1 member in conference as one member is made to hangup
+        	self.assertEqual(1, len(response[1]['members']))
+        	self.assertEqual(another_member_id,response[1]['members'][0]['member_id'])
+        	
+        	
 class TestMessage(PlivoTest):
     def test_get_messages(self):
         response = self.client.get_messages()
         valid_keys = ['meta', 'objects', 'api_id']
         self.check_status_and_keys(200, valid_keys, response)
-
+        
+	def test_send_and_get_message(self):
+		params = {"src": DEFAULT_FROM_NUMBER, "dst": DEFAULT_TO_NUMBER,
+                  "text": "Testing"}
+        response = self.client.send_message(params)
+        valid_keys = ["message", "message_uuid", "api_id"]
+        self.check_status_and_keys(202, valid_keys, response)
+        message_uuid = response[1]["message_uuid"][0]
+        self.client.get_message({"record_id": message_uuid})
+        
 class TestCdr(PlivoTest):
     def test_get_all_cdrs(self):
         response = self.client.get_cdrs()
@@ -378,18 +406,7 @@ class LiveCall(PlivoTest):
         valid_keys = ['api_id', 'calls']
         self.check_status_and_keys(200, valid_keys, response)
         
-	def test_send_and_get_message(self):
-        params = {"src": DEFAULT_FROM_NUMBER, "dst": DEFAULT_TO_NUMBER,
-                  "text": "Testing"}
-        response = self.client.send_message(params)
-        valid_keys = ["message", "message_uuid", "api_id"]
-        self.check_status_and_keys(202, valid_keys, response)
-        message_uuid = response[1]["message_uuid"][0]
-        self.client.get_message({"record_id": message_uuid})
-        
-     
-
-
+	
 def get_client(AUTH_ID, AUTH_TOKEN):
     return plivo.RestAPI(AUTH_ID, AUTH_TOKEN)
 
