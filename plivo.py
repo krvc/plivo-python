@@ -135,7 +135,7 @@ class RestAPI(object):
 
     def search_numbers(self, params=None):
         if not params: params = {}
-        return self._request('GET', '/AvailableNumberGroup/', data=params)
+        return self._request('GET', '/AvailableNumber/', data=params)
 
     def get_number(self, params=None):
         if not params: params = {}
@@ -145,7 +145,7 @@ class RestAPI(object):
     def rent_number(self, params=None):
         if not params: params = {}
         number = params.pop("number")
-        return self._request('POST', '/AvailableNumberGroup/%s/' % number, data=params)
+        return self._request('POST', '/AvailableNumber/%s/' % number, data=params)
 
     def unrent_number(self, params=None):
         if not params: params = {}
