@@ -7,11 +7,16 @@ import plivo
 
 try:
     from auth_secrets import AUTH_ID, AUTH_TOKEN
+    from auth_secrets import DEFAULT_FROM_NUMBER, DEFAULT_TO_NUMBER
 except ImportError:
     AUTH_ID, AUTH_TOKEN = os.getenv("AUTH_ID"), os.getenv("AUTH_TOKEN")
-    if not (AUTH_ID and AUTH_TOKEN):
+    DEFAULT_FROM_NUMBER = os.getenv("DEFAULT_FROM_NUMBER")
+    DEFAULT_TO_NUMBER = os.getenv("DEFAULT_TO_NUMBER")
+    if not (AUTH_ID and AUTH_TOKEN and
+            DEFAULT_FROM_NUMBER and DEFAULT_TO_NUMBER):
         raise Exception("Create a auth_secrets.py file or set AUTH_ID "
-                        "and AUTH_TOKEN as environ values.")
+                        "AUTH_TOKEN, DEFAULT_TO_NUMBER, DEFAULT_FROM_NUMBER"
+                        "as environ values.")
 
 client = None
 random_letter = lambda: random.choice(string.ascii_letters)
