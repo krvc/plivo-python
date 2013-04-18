@@ -270,15 +270,15 @@ class TestNumber(PlivoTest):
         response = self.client.get_number({"number": DEFAULT_FROM_NUMBER})
         valid_keys = ["added_on", "api_id", "application", "carrier", "number",
                       "sms_enabled", "voice_enabled"]
-        self.check_status_and_keys(200, valid_keys, response)
+        self.check_status_and_keys(nu200, valid_keys, response)
         self.assertEqual(DEFAULT_FROM_NUMBER, response[1]["number"])
 
     def test_number_crud(self):
-        response = self.client.search_numbers({"country_iso": "US"})
+        response = self.client.get_number_group({"country_iso": "US"})
         valid_keys = ["meta", "api_id", "objects"]
         self.check_status_and_keys(200, valid_keys, response)
         group_id = response[1]["objects"][0]["group_id"]
-        response = self.client.rent_number({"number": group_id})
+        response = self.client.rent_from_number_group({"group_id": group_id})
         valid_keys = ["numbers", "status"]
         self.check_status_and_keys(201, valid_keys, response)
         number = response[1]["numbers"][0]["number"]
