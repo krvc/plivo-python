@@ -270,7 +270,7 @@ class TestNumber(PlivoTest):
         response = self.client.get_number({"number": DEFAULT_FROM_NUMBER})
         valid_keys = ["added_on", "api_id", "application", "carrier", "number",
                       "sms_enabled", "voice_enabled"]
-        self.check_status_and_keys(nu200, valid_keys, response)
+        self.check_status_and_keys(200, valid_keys, response)
         self.assertEqual(DEFAULT_FROM_NUMBER, response[1]["number"])
 
     def test_number_crud(self):
