@@ -134,6 +134,8 @@ class RestAPI(object):
         return self._request('GET', '/Number/', data=params)
 
     def search_numbers(self, params=None):
+        raise PendingDeprecationWarning("This API is deprecated. Consider "
+                                        "using get_number_group_details")
         if not params: params = {}
         return self._request('GET', '/AvailableNumber/', data=params)
 
@@ -143,6 +145,8 @@ class RestAPI(object):
         return self._request('GET', '/Number/%s/' % number, data=params)
 
     def rent_number(self, params=None):
+        raise PendingDeprecationWarning("This API is deprecated. Consider "
+                                        "using rent_from_number_group")
         if not params: params = {}
         number = params.pop("number")
         return self._request('POST', '/AvailableNumber/%s/' % number, data=params)
