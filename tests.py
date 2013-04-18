@@ -7,11 +7,16 @@ import plivo
 
 try:
     from auth_secrets import AUTH_ID, AUTH_TOKEN
+    from auth_secrets import DEFAULT_FROM_NUMBER, DEFAULT_TO_NUMBER
 except ImportError:
     AUTH_ID, AUTH_TOKEN = os.getenv("AUTH_ID"), os.getenv("AUTH_TOKEN")
-    if not (AUTH_ID and AUTH_TOKEN):
+    DEFAULT_FROM_NUMBER = os.getenv("DEFAULT_FROM_NUMBER")
+    DEFAULT_TO_NUMBER = os.getenv("DEFAULT_TO_NUMBER")
+    if not (AUTH_ID and AUTH_TOKEN and
+            DEFAULT_FROM_NUMBER and DEFAULT_TO_NUMBER):
         raise Exception("Create a auth_secrets.py file or set AUTH_ID "
-                        "and AUTH_TOKEN as environ values.")
+                        "AUTH_TOKEN, DEFAULT_TO_NUMBER, DEFAULT_FROM_NUMBER "
+                        "as environ values.")
 
 client = None
 random_letter = lambda: random.choice(string.ascii_letters)
@@ -261,6 +266,24 @@ class TestNumber(PlivoTest):
         valid_keys = ['meta', 'objects', 'api_id']
         self.check_status_and_keys(200, valid_keys, response)
 
+    def test_get_number(self):
+        response = self.client.get_number({"number": DEFAULT_FROM_NUMBER})
+        valid_keys = ["added_on", "api_id", "application", "carrier", "number",
+                      "sms_enabled", "voice_enabled"]
+        self.check_status_and_keys(200, valid_keys, response)
+        self.assertEqual(DEFAULT_FROM_NUMBER, response[1]["number"])
+
+    def test_number_crud(self):
+        response = self.client.search_numbers({"country_iso": "US"})
+        valid_keys = ["meta", "api_id", "objects"]
+        self.check_status_and_keys(200, valid_keys, response)
+        group_id = response[1]["objects"][0]["group_id"]
+        response = self.client.rent_number({"number": group_id})
+        valid_keys = ["numbers", "status"]
+        self.check_status_and_keys(201, valid_keys, response)
+        number = response[1]["numbers"][0]["number"]
+        response = self.client.unrent_number({"number": number})
+
 
 class TestCarrier(PlivoTest):
     def test_incoming_carriers(self):
@@ -318,6 +341,7 @@ class TestMessage(PlivoTest):
         valid_keys = ['meta', 'objects', 'api_id']
         self.check_status_and_keys(200, valid_keys, response)
 
+<<<<<<< HEAD
 class TestCdr(PlivoTest):
     def test_get_all_cdrs(self):
         response = self.client.get_cdrs()
@@ -330,18 +354,20 @@ class LiveCall(PlivoTest):
         valid_keys = ['api_id', 'calls']
         self.check_status_and_keys(200, valid_keys, response)
         
-class MakeCall(PlivoTest):
-	def test_make_call(self):
-		response = self.client.make_call()
-		valid_keys = ['message', 'request_uuid', 'api_id']
-		self.check_status_and_keys(200, valid_keys, response)
+
+
+    def test_send_and_get_message(self):
+        params = {"src": DEFAULT_FROM_NUMBER, "dst": DEFAULT_TO_NUMBER,
+                  "text": "Testing"}
+        response = self.client.send_message(params)
+        valid_keys = ["message", "message_uuid", "api_id"]
+        self.check_status_and_keys(202, valid_keys, response)
+        message_uuid = response[1]["message_uuid"][0]
+        self.client.get_message({"record_id": message_uuid})
+
 
 def get_client(AUTH_ID, AUTH_TOKEN):
-    if client:
-        return client
-    auth_id = AUTH_ID
-    auth_token = AUTH_TOKEN
-    return plivo.RestAPI(auth_id, auth_token)
+    return plivo.RestAPI(AUTH_ID, AUTH_TOKEN)
 
 if __name__ == "__main__":
     unittest.main()
