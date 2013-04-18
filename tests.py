@@ -15,7 +15,7 @@ except ImportError:
     if not (AUTH_ID and AUTH_TOKEN and
             DEFAULT_FROM_NUMBER and DEFAULT_TO_NUMBER):
         raise Exception("Create a auth_secrets.py file or set AUTH_ID "
-                        "AUTH_TOKEN, DEFAULT_TO_NUMBER, DEFAULT_FROM_NUMBER"
+                        "AUTH_TOKEN, DEFAULT_TO_NUMBER, DEFAULT_FROM_NUMBER "
                         "as environ values.")
 
 client = None
@@ -272,6 +272,17 @@ class TestNumber(PlivoTest):
                       "sms_enabled", "voice_enabled"]
         self.check_status_and_keys(200, valid_keys, response)
         self.assertEqual(DEFAULT_FROM_NUMBER, response[1]["number"])
+
+    def test_number_crud(self):
+        response = self.client.search_numbers({"country_iso": "US"})
+        valid_keys = ["meta", "api_id", "objects"]
+        self.check_status_and_keys(200, valid_keys, response)
+        group_id = response[1]["objects"][0]["group_id"]
+        response = self.client.rent_number({"number": group_id})
+        valid_keys = ["numbers", "status"]
+        self.check_status_and_keys(201, valid_keys, response)
+        number = response[1]["numbers"][0]["number"]
+        response = self.client.unrent_number({"number": number})
 
 
 class TestCarrier(PlivoTest):

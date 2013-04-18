@@ -1,10 +1,11 @@
----
-language: python
+--- 
+script: python tests.py
 install: pip install -r requirements.txt --use-mirrors
-python:
+python: 
 - "2.7"
-env:
-  global:
+language: python
+env: 
+  global: 
   - secure: |-
       ahgWHHRdu65OLx9QGXBve21/kzn1SG5kkMT041+cq+WL3H0A/Ne4DLof1vft
       j1fRxx79k4+FAASZCBIKbNJ+5j/IpUynzPiNNzZp8aRQbWeaypTpxb4ZWyNh
@@ -17,4 +18,7 @@ env:
       FDjVOq4TjRdUZJa9psoOUxTSG9N8fx9woBOlUjNHmRAYd2SiJR0eR8qlaS2B
       vJfefCDLIY0QIzLs9zn/lF2SFbFe+1THbGuMo2rbJV73HKbBbh4A/PLUaoyG
       PHwyiC3FmT31diisxL6NjWwZPZPaFp2rnW9o7fgkFODcyV/RhHQ=
-script: python tests.py
+  - secure: |-
+      W1dmgMGxP0/qYl8cGivpBhuW0xEF6u6acKxA6Gv4FdanYpciCaK5Fko/CklV
+      L7QQi19sjUPKL+Su/Wp+GYw298YtKPkJUy5vvRvnK2UtcFRQHk/VMjZOvTIo
+      nHjp2gO3m68ZVsI8KqeKxD727f5XRzlwtCciJdf2kSp9JRmf01M=
