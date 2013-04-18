@@ -324,12 +324,17 @@ class TestCdr(PlivoTest):
         valid_keys = ['meta', 'objects', 'api_id']
         self.check_status_and_keys(200, valid_keys, response)
 
-class Live_call(PlivoTest):
+class LiveCall(PlivoTest):
     def test_get_live_calls(self):
         response = self.client.get_live_calls()
         valid_keys = ['api_id', 'calls']
         self.check_status_and_keys(200, valid_keys, response)
-
+        
+class MakeCall(PlivoTest):
+	def test_make_call(self):
+		response = self.client.make_call()
+		valid_keys = ['message', 'request_uuid', 'api_id']
+		self.check_status_and_keys(200, valid_keys, response)
 
 def get_client(AUTH_ID, AUTH_TOKEN):
     if client:
@@ -337,8 +342,6 @@ def get_client(AUTH_ID, AUTH_TOKEN):
     auth_id = AUTH_ID
     auth_token = AUTH_TOKEN
     return plivo.RestAPI(auth_id, auth_token)
-
-
 
 if __name__ == "__main__":
     unittest.main()
