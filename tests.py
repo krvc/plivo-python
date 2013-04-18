@@ -341,7 +341,6 @@ class TestMessage(PlivoTest):
         valid_keys = ['meta', 'objects', 'api_id']
         self.check_status_and_keys(200, valid_keys, response)
 
-<<<<<<< HEAD
 class TestCdr(PlivoTest):
     def test_get_all_cdrs(self):
         response = self.client.get_cdrs()
@@ -354,9 +353,7 @@ class LiveCall(PlivoTest):
         valid_keys = ['api_id', 'calls']
         self.check_status_and_keys(200, valid_keys, response)
         
-
-
-    def test_send_and_get_message(self):
+	def test_send_and_get_message(self):
         params = {"src": DEFAULT_FROM_NUMBER, "dst": DEFAULT_TO_NUMBER,
                   "text": "Testing"}
         response = self.client.send_message(params)
@@ -364,6 +361,8 @@ class LiveCall(PlivoTest):
         self.check_status_and_keys(202, valid_keys, response)
         message_uuid = response[1]["message_uuid"][0]
         self.client.get_message({"record_id": message_uuid})
+        
+     
 
 
 def get_client(AUTH_ID, AUTH_TOKEN):
