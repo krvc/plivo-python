@@ -341,11 +341,7 @@ class TestMessage(PlivoTest):
 
 
 def get_client(AUTH_ID, AUTH_TOKEN):
-    if client:
-        return client
-    auth_id = AUTH_ID
-    auth_token = AUTH_TOKEN
-    return plivo.RestAPI(auth_id, auth_token)
+    return plivo.RestAPI(AUTH_ID, AUTH_TOKEN)
 
 if __name__ == "__main__":
     unittest.main()
