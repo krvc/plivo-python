@@ -365,7 +365,7 @@ class TestConference(PlivoTest):
         	self.client.make_call(self.call_params)
         	#wait some time
         	time.sleep(8)
-        	response = self.client.get_live_conference({'conference_name':'plivo'}]
+        	response = self.client.get_live_conference({'conference_name':'plivo'})
         	
         	#2 members in conference
         	self.assertEqual(2, len(response[1]['members']))
@@ -378,7 +378,26 @@ class TestConference(PlivoTest):
         	self.assertEqual(1, len(response[1]['members']))
         	self.assertEqual(another_member_id,response[1]['members'][0]['member_id'])
         	
-        	
+        def test_members_kick_member_member_id(self):
+            #hangup conference at the beginning
+            self.client.hangup_conference({'conference_name':'plivo'})
+            self.client.make_call(self.call_params)
+            self.call_params['to'] = DEFAULT_TO_NUMBER2
+            self.client.make_call(self.call_params)
+            #wait some time
+            time.sleep(8)
+            response = self.client.get_live_conference({'conference_name': 'plivo'})
+            #2 members in conference
+            self.assertEqual(2, len(response[1]['memebers']))
+            member_id = response[1]['memebers'][0]['member_id']
+            another_member_id = response[1]['members'][1][member_id]
+            response = self.client.get_live_conference({'conference_name':'plivo'})
+            #1 member in conference as one member is kicked
+            self.assertEqual(1,len(response[1][memebers]))
+            self.assertEqual(another_member_id, response[1]['memebers'][0]['member_id'])
+
+
+
 class TestMessage(PlivoTest):
     def test_get_messages(self):
         response = self.client.get_messages()
@@ -406,7 +425,7 @@ class LiveCall(PlivoTest):
         valid_keys = ['api_id', 'calls']
         self.check_status_and_keys(200, valid_keys, response)
         
-	
+
 def get_client(AUTH_ID, AUTH_TOKEN):
     return plivo.RestAPI(AUTH_ID, AUTH_TOKEN)
 
