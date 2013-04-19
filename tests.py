@@ -396,6 +396,28 @@ class TestConference(PlivoTest):
             self.assertEqual(1,len(response[1][memebers]))
             self.assertEqual(another_member_id, response[1]['memebers'][0]['member_id'])
 
+        def test_members_kick_member_comma_separated_member_ids(self):
+            #hangup conference at the beginning
+            self.client.hangup_conference({'conference_name':'plivo'})
+            self.client.make_call(self.call_params)
+            self.call_params['to'] = DEFAULT_TO_NUMBER2
+            self.client.make_call(self.call_params)
+            #wait some time
+            time.sleep(8)
+            response = self.get_live_conference({'conference_name':'plivo' })
+            #2members in conference
+            self.assertEqual(2,len(response[1])['members'])
+            member_id = response[1]['memebers'][0]['member_id']
+            another_member_id = response[1]['memebers'][1]['member_id']
+            memebers_to_be_kicked = "%s,%s" %(member_id, another_member_id)
+            response = self.client.kick_member({'member_id': memebers_to_be_kicked, 'conference_name':'plivo'})
+            self.assertEqual(202, response[0])
+            response = self.client.get_live_conference({'conference_name':'plivo'})
+            valid_keys = ['api_id', 'error']
+            #returns 404 since no more members in the conference
+            #(hence no conference)
+            self.check_status_and_keys(404, valid_keys, response)
+
 
 
 class TestMessage(PlivoTest):
