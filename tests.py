@@ -261,6 +261,16 @@ class TestRecording(PlivoTest):
         valid_keys = ['meta', 'objects', 'api_id']
         self.check_status_and_keys(200, valid_keys, response)
 
+    def test_recording(self):
+        response = self.client.get_recordings() 
+        if (len(response[1]['objects'])) > 0:
+            recording_id = response[1]['objects']['0']['recording_id']
+            response = self.client.get_recording({'recording_id':recording_id})
+            valid_keys = ['recording_id', 'api_id', 'conference_name', 
+                          'recording_type', 'recording_format', 'call_uuid',
+                          'recording_url', 'resource_uri', 'add_time']
+            self.check_status_and_keys(200, valid_keys, response)              
+
 
 class TestNumber(PlivoTest):
     def test_get_numbers(self):
