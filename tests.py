@@ -418,6 +418,25 @@ class TestConference(PlivoTest):
             #(hence no conference)
             self.check_status_and_keys(404, valid_keys, response)
 
+        def test_member_kick_all(self):
+            #hangup conference at the beginning
+            self.client.hangup_conference({'conference_name':'plivo'})
+            self.client.make_call(self.call_params)
+            self.call_params['to'] = DEFAULT_TO_NUMBER2
+            self.client.make_call(self.call_params)
+            #wait some time
+            time.sleep(8)
+            response = self.client.get_live_conference({'conference_name':'plivo'})
+            #2 members in conference
+            self.assertEqual(2, len(response[1]['members']))
+            response = self.client.kick_member({'member_id':'all', 'conference_name':'plivo'})
+            self.assertEqual(202, response[0])
+            response = self.client.get_live_conference({'conference_name':'plivo'}) 
+            valid_keys = ['api_id','error']
+            #Returns 404 since all are kicked from the conference
+            #(hence no conference)
+            self.check_status_and_keys(404, valid_keys, response)     
+
 
 
 class TestMessage(PlivoTest):
