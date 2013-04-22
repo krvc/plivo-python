@@ -577,7 +577,7 @@ class TestConference(PlivoTest):
                                                 'url': self.sound_url})
         self.assertEqual(204, response[0])
 
-    def test_def(self):
+    def test_deaf(self):
         #hangup conference at the begining
         self.client.hangup_conference({'conference_name':'plivo'})
         self.client.make_call(self.call_params)
@@ -654,7 +654,37 @@ class TestConference(PlivoTest):
         #check: member1 and member2 should not be deaf
         self.assertFalse(response[1]['members'][0]['deaf'])
         self.assertFalse(response[1]['members'][1]['deaf'])
-        
+
+    def test_speech(self):
+        #hangup conference at the beginning
+        self.client.hangup_conference({'conference_name':
+                                      'plivo'})
+        self.client.make_call(self.call_params)
+        self.call_params['to'] = DEFAULT_TO_NUMBER2
+        self.client.make_call(self.call_params)
+        #wait some time
+        time.sleep(8)
+        response = self.cliet.get_live_conference({'conference_name':
+                                                    'plivo'})
+        member1 = response[1]['members'][0]['member_id']
+        member2 = response[1]['members'][1]['member_id']
+
+        speak_params = {'conference_name': 'plivo',
+                        'member_id': member1,
+                        'text': 'Hello'}
+        #make member1 listen to speech
+        response = self.client.speak_member(speak_params.copy())
+        self.assertEqual(202, response[0])
+
+        #make both member1 and member2 listen to speech
+        speak_params['member_id'] = member2
+        response = self.client.speak_member(speak_params.copy())
+        self.assertEqual(202, response[0])
+
+        #make all listen to speech
+        speak_params['member_id'] = 'all'
+        response = self.client.speak_member(speak_params.copy())
+        self.assertEqual(202, response[0]) 
 
 class TestMessage(PlivoTest):
     def test_get_messages(self):
