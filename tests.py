@@ -577,6 +577,84 @@ class TestConference(PlivoTest):
                                                 'url': self.sound_url})
         self.assertEqual(204, response[0])
 
+    def test_def(self):
+        #hangup conference at the begining
+        self.client.hangup_conference({'conference_name':'plivo'})
+        self.client.make_call(self.call_params)
+        self.call_params['to'] = DEFAULT_TO_NUMBER2
+        self.client.make_call(self.call_params)
+        #wait for some time
+        time.sleep(8)
+        response = self.client.get_live_conference({'conference_name':
+                                                    'plivo'})
+        member1 = response[1]['members'][0]['member_id']
+        member2 = response[1]['members'][1]['member_id']
+        #deaf member1
+        response = self.client.deaf_member({'conference_name': 'plivo',
+                                            'member_id': member1})
+        self.assertEqual(202, response[0])
+        response = self.client.get_live_conference({'conference_name':
+                                                   'plivo'})
+        #check: member1 should be deaf, member2 not
+        self.assertTrue(response[1]['members'][0]['deaf'])
+        self.assertFalse(response[1]['members'][1]['deaf'])
+
+        #undeaf member1
+        response = self.client.undeaf_member({'conference_name': 'plivo',
+                                              'member_id': member1})
+        self.assertEqual(204, response[0])
+
+        response = self.client.get_live_conference({'conference_name':
+                                                   'plivo'})
+        #check: member1 and member2 should not be deaf
+        self.assertFalse(response[1]['members'][0]['deaf'])
+        self.assertFalse(response[1]['members'][1]['deaf'])
+
+        #deaf member1 and member2 using comma separated params
+        both_members = "%s, %s" % (member1, member2)
+        response = self.client.deaf_member({'conference_name': 'plivo',
+                                            'member_id': both_members})
+        self.assertEqual(202, response[0])
+
+        response = self.client.get_live_conference({'conference_name':
+                                                   'plivo'})
+        #check: member1 and member2 should be deaf
+        self.assertTrue(response[1]['members'][0]['deaf'])
+        self.assertTrue(response[1]['members'][1]['deaf'])
+
+        #undeaf member1 and member2
+        response = self.client.undeaf_member({'conference_name': 'plivo',
+                                              'member_id': both_members})
+        self.assertEqual(204, response[0])
+
+        response = self.client.get_live_conference({'conference_name':
+                                                   'plivo'})
+        #check: member1 and member2 should not be deaf
+        self.assertFalse(response[1]['members'][0]['deaf'])
+        self.assertFalse(response[1]['members'][1]['deaf'])
+
+        #deaf all members
+        response = self.client.deaf_member({'conference_name': 'plivo',
+                                            'member_id': 'all'})
+        self.assertEqual(202, response[0])
+
+        response = self.client.get_live_conference({'conference_name':
+                                                   'plivo'})
+        #check: member1 and member2 should be deaf
+        self.assertTrue(response[1]['members'][0]['deaf'])
+        self.assertTrue(response[1]['members'][1]['deaf'])
+
+        #undeaf all members
+        response = self.client.undeaf_member({'conference_name': 'plivo',
+                                              'member_id': 'all'})
+        self.assertEqual(204, response[0])
+
+        response = self.client.get_live_conference({'conference_name':
+                                                   'plivo'})
+        #check: member1 and member2 should not be deaf
+        self.assertFalse(response[1]['members'][0]['deaf'])
+        self.assertFalse(response[1]['members'][1]['deaf'])
+        
 
 class TestMessage(PlivoTest):
     def test_get_messages(self):
