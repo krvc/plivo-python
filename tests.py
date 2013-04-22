@@ -369,164 +369,214 @@ class TestConference(PlivoTest):
         response = self.client.hangup_all_conferences()
         self.assertEqual(204, response[0])
         
-        def test_members_hangup_member(self):
-        	self.client.make_call(self.call_params)
-        	self.call_params['to'] = DEFAULT_TO_NUMBER2
-        	self.client.make_call(self.call_params)
-        	#wait some time
-        	time.sleep(8)
-        	response = self.client.get_live_conference({'conference_name':'plivo'})
+    def test_members_hangup_member(self):
+        self.client.make_call(self.call_params)
+        self.call_params['to'] = DEFAULT_TO_NUMBER2
+    	self.client.make_call(self.call_params)
+    	#wait some time
+    	time.sleep(8)
+        response = self.client.get_live_conference({'conference_name':'plivo'})
         	
-        	#2 members in conference
-        	self.assertEqual(2, len(response[1]['members']))
-        	member_id = response[1]['members'][0]['member_id']
-        	another_member_id = response[1]['members'][1]['member_id']
-        	response = self.client.hangup_member({'member_id': member_id,'conference_name': 'plivo'})
-        	self.assertEqual(204, response[0])
-        	response = self.client.get_live_conference({'conference_name':'plivo'})
-        	#1 member in conference as one member is made to hangup
-        	self.assertEqual(1, len(response[1]['members']))
-        	self.assertEqual(another_member_id,response[1]['members'][0]['member_id'])
+    	#2 members in conference
+    	self.assertEqual(2, len(response[1]['members']))
+    	member_id = response[1]['members'][0]['member_id']
+    	another_member_id = response[1]['members'][1]['member_id']
+    	response = self.client.hangup_member({'member_id': member_id,'conference_name': 'plivo'})
+    	self.assertEqual(204, response[0])
+    	response = self.client.get_live_conference({'conference_name':'plivo'})
+    	#1 member in conference as one member is made to hangup
+    	self.assertEqual(1, len(response[1]['members']))
+    	self.assertEqual(another_member_id,response[1]['members'][0]['member_id'])
         	
-        def test_members_kick_member_member_id(self):
-            #hangup conference at the beginning
-            self.client.hangup_conference({'conference_name':'plivo'})
-            self.client.make_call(self.call_params)
-            self.call_params['to'] = DEFAULT_TO_NUMBER2
-            self.client.make_call(self.call_params)
-            #wait some time
-            time.sleep(8)
-            response = self.client.get_live_conference({'conference_name': 'plivo'})
-            #2 members in conference
-            self.assertEqual(2, len(response[1]['memebers']))
-            member_id = response[1]['memebers'][0]['member_id']
-            another_member_id = response[1]['members'][1][member_id]
-            response = self.client.get_live_conference({'conference_name':'plivo'})
-            #1 member in conference as one member is kicked
-            self.assertEqual(1,len(response[1][memebers]))
-            self.assertEqual(another_member_id, response[1]['memebers'][0]['member_id'])
-
-        def test_members_kick_member_comma_separated_member_ids(self):
-            #hangup conference at the beginning
-            self.client.hangup_conference({'conference_name':'plivo'})
-            self.client.make_call(self.call_params)
-            self.call_params['to'] = DEFAULT_TO_NUMBER2
-            self.client.make_call(self.call_params)
-            #wait some time
-            time.sleep(8)
-            response = self.get_live_conference({'conference_name':'plivo' })
-            #2members in conference
-            self.assertEqual(2,len(response[1])['members'])
-            member_id = response[1]['memebers'][0]['member_id']
-            another_member_id = response[1]['memebers'][1]['member_id']
-            memebers_to_be_kicked = "%s,%s" %(member_id, another_member_id)
-            response = self.client.kick_member({'member_id': memebers_to_be_kicked, 'conference_name':'plivo'})
-            self.assertEqual(202, response[0])
-            response = self.client.get_live_conference({'conference_name':'plivo'})
-            valid_keys = ['api_id', 'error']
-            #returns 404 since no more members in the conference
-            #(hence no conference)
-            self.check_status_and_keys(404, valid_keys, response)
-
-        def test_member_kick_all(self):
-            #hangup conference at the beginning
-            self.client.hangup_conference({'conference_name':'plivo'})
-            self.client.make_call(self.call_params)
-            self.call_params['to'] = DEFAULT_TO_NUMBER2
-            self.client.make_call(self.call_params)
-            #wait some time
-            time.sleep(8)
-            response = self.client.get_live_conference({'conference_name':'plivo'})
-            #2 members in conference
-            self.assertEqual(2, len(response[1]['members']))
-            response = self.client.kick_member({'member_id':'all', 'conference_name':'plivo'})
-            self.assertEqual(202, response[0])
-            response = self.client.get_live_conference({'conference_name':'plivo'}) 
-            valid_keys = ['api_id','error']
-            #Returns 404 since all are kicked from the conference
-            #(hence no conference)
-            self.check_status_and_keys(404, valid_keys, response)  
-
-        def test_members_mute_unmute(self):
+    def test_members_kick_member_member_id(self):
         #hangup conference at the beginning
-            self.client.hangup_conference({'conference_name':
-                                       'plivo'})
-            self.client.make_call(self.call_params)
-            self.call_params['to'] = DEFAULT_TO_NUMBER2
-            self.client.make_call(self.call_params)
-            #wait some time
-            time.sleep(8)
-            response = self.client.get_live_conference({'conference_name':
+        self.client.hangup_conference({'conference_name':'plivo'})
+        self.client.make_call(self.call_params)
+        self.call_params['to'] = DEFAULT_TO_NUMBER2
+        self.client.make_call(self.call_params)
+        #wait some time
+        time.sleep(8)
+        response = self.client.get_live_conference({'conference_name': 'plivo'})
+        #2 members in conference
+        self.assertEqual(2, len(response[1]['members']))
+        member_id = response[1]['members'][0]['member_id']
+        another_member_id = response[1]['members'][1][member_id]
+        response = self.client.get_live_conference({'conference_name':'plivo'})
+        #1 member in conference as one member is kicked
+        self.assertEqual(1,len(response[1][members]))
+        self.assertEqual(another_member_id, response[1]['members'][0]['member_id'])
+
+    def test_members_kick_member_comma_separated_member_ids(self):
+        #hangup conference at the beginning
+        self.client.hangup_conference({'conference_name':'plivo'})
+        self.client.make_call(self.call_params)
+        self.call_params['to'] = DEFAULT_TO_NUMBER2
+        self.client.make_call(self.call_params)
+        #wait some time
+        time.sleep(8)
+        response = self.get_live_conference({'conference_name':'plivo' })
+        #2members in conference
+        self.assertEqual(2,len(response[1])['members'])
+        member_id = response[1]['members'][0]['member_id']
+        another_member_id = response[1]['members'][1]['member_id']
+        members_to_be_kicked = "%s,%s" %(member_id, another_member_id)
+        response = self.client.kick_member({'member_id': members_to_be_kicked, 'conference_name':'plivo'})
+        self.assertEqual(202, response[0])
+        response = self.client.get_live_conference({'conference_name':'plivo'})
+        valid_keys = ['api_id', 'error']
+        #returns 404 since no more members in the conference
+        #(hence no conference)
+        self.check_status_and_keys(404, valid_keys, response)
+
+    def test_member_kick_all(self):
+        #hangup conference at the beginning
+        self.client.hangup_conference({'conference_name':'plivo'})
+        self.client.make_call(self.call_params)
+        self.call_params['to'] = DEFAULT_TO_NUMBER2
+        self.client.make_call(self.call_params)
+        #wait some time
+        time.sleep(8)
+        response = self.client.get_live_conference({'conference_name':'plivo'})
+        #2 members in conference
+        self.assertEqual(2, len(response[1]['members']))
+        response = self.client.kick_member({'member_id':'all', 'conference_name':'plivo'})
+        self.assertEqual(202, response[0])
+        response = self.client.get_live_conference({'conference_name':'plivo'}) 
+        valid_keys = ['api_id','error']
+        #Returns 404 since all are kicked from the conference
+        #(hence no conference)
+        self.check_status_and_keys(404, valid_keys, response)  
+
+    def test_members_mute_unmute(self):
+    #hangup conference at the beginning
+        self.client.hangup_conference({'conference_name':
+                                   'plivo'})
+        self.client.make_call(self.call_params)
+        self.call_params['to'] = DEFAULT_TO_NUMBER2
+        self.client.make_call(self.call_params)
+        #wait some time
+        time.sleep(8)
+        response = self.client.get_live_conference({'conference_name':
+                                                'plivo'})
+        member1 = response[1]['members'][0]['member_id']
+        member2 = response[1]['members'][1]['member_id']
+
+        #mute member1
+        response = self.client.mute_member({'conference_name': 'plivo',
+                                        'member_id': member1})
+        self.assertEqual(202, response[0])
+
+        response = self.client.get_live_conference({'conference_name':
+                                               'plivo'})
+        #check: member1 should be muted, member2 not
+        self.assertTrue(response[1]['members'][0]['muted'])
+        self.assertFalse(response[1]['members'][1]['muted'])
+
+        #unmute member1
+        response = self.client.unmute_member({'conference_name': 'plivo',
+                                          'member_id': member1})
+        self.assertEqual(204, response[0])
+
+        response = self.client.get_live_conference({'conference_name':
+                                               'plivo'})
+        #check: member1 and member2 should not be muted
+        self.assertFalse(response[1]['members'][0]['muted'])
+        self.assertFalse(response[1]['members'][1]['muted'])
+
+        #mute member1 and member2 using comma separated params
+        both_members = "%s, %s" % (member1, member2)
+        response = self.client.mute_member({'conference_name': 'plivo',
+                                        'member_id': both_members})
+        self.assertEqual(202, response[0])
+
+        response = self.client.get_live_conference({'conference_name':
+                                               'plivo'})
+        #check: member1 and member2 should be muted
+        self.assertTrue(response[1]['members'][0]['muted'])
+        self.assertTrue(response[1]['members'][1]['muted'])
+
+        #unmute member1 and member2
+        response = self.client.unmute_member({'conference_name': 'plivo',
+                                          'member_id': both_members})
+        self.assertEqual(204, response[0])
+
+        response = self.client.get_live_conference({'conference_name':
+                                               'plivo'})
+        #check: member1 and member2 should not be muted
+        self.assertFalse(response[1]['members'][0]['muted'])
+        self.assertFalse(response[1]['members'][1]['muted'])
+
+        #mute all members
+        response = self.client.mute_member({'conference_name': 'plivo',
+                                        'member_id': 'all'})
+        self.assertEqual(202, response[0])
+
+        response = self.client.get_live_conference({'conference_name':
+                                               'plivo'})
+        #check: member1 and member2 should be muted
+        self.assertTrue(response[1]['members'][0]['muted'])
+        self.assertTrue(response[1]['members'][1]['muted'])
+
+        #unmute all members
+        response = self.client.unmute_member({'conference_name': 'plivo',
+                                          'member_id': 'all'})
+        self.assertEqual(204, response[0])
+
+        response = self.client.get_live_conference({'conference_name':
+                                               'plivo'})
+        #check: member1 and member2 should not be muted
+        self.assertFalse(response[1]['members'][0]['muted'])
+        self.assertFalse(response[1]['members'][1]['muted'])
+
+    def test_Sound(self):
+        #hangup conference at the beginning
+        self.client.hangup_conference({'conference_name': 'plivo'})
+        self.client.make_call(self.call_params)
+        self.call_params['to'] = DEFAULT_TO_NUMBER2
+        self.client.make_call(self.call_params)
+        #wait for some time
+        time.sleep(8)
+        response = self.client.get_live_conference({'conference_name':
                                                     'plivo'})
-            member1 = response[1]['members'][0]['member_id']
-            member2 = response[1]['members'][1]['member_id']
+        member1 = response[1]['members'][0]['member_id']
+        member2 = response[1]['members'][1]['member_id']
+        #play to member1
+        response = self.client.play_member({'conference_name':'plivo',
+                                            'member_id':member1,
+                                            'url': self.sound_url})
+        self.assertEqual(202, response[0])
+        #stop play to member1
+        response = self.client.stop_play_member({'conference_name':'plivo',
+                                                 'member_id': member1,
+                                                 'url': self.sound_url})
+        self.assertEqual(204, response[0])
 
-            #mute member1
-            response = self.client.mute_member({'conference_name': 'plivo',
-                                            'member_id': member1})
-            self.assertEqual(202, response[0])
+        #plat to both (via comma separated param)
+        response = self.client_play_member({'conference_name':'plivo',
+                                            'member_id':
+                                            "%s, %s" %(member1, member2),
+                                            'url': self.sound_url})
+        self.assertEqual(202, response[0])
 
-            response = self.client.get_live_conference({'conference_name':
-                                                   'plivo'})
-            #check: member1 should be muted, member2 not
-            self.assertTrue(response[1]['members'][0]['muted'])
-            self.assertFalse(response[1]['members'][1]['muted'])
+        #stop play to both (via comma separated param)
+        response = self.client.play_member({'conference_name':'plivo',
+                                            'member_id':
+                                            "%s, %s" %(member1, member2),
+                                            'url': self.sound_url})
+        self.assertEqual(204, response[0])
 
-            #unmute member1
-            response = self.client.unmute_member({'conference_name': 'plivo',
-                                              'member_id': member1})
-            self.assertEqual(204, response[0])
+        #play to all (via param 'all')
+        response = self.client.play_member({'conference_name': 'plivo',
+                                            'member_id': 'all',
+                                            'url': self.sound_url})
+        self.assertEqual(204, response[0])
 
-            response = self.client.get_live_conference({'conference_name':
-                                                   'plivo'})
-            #check: member1 and member2 should not be muted
-            self.assertFalse(response[1]['members'][0]['muted'])
-            self.assertFalse(response[1]['members'][1]['muted'])
+        #stop play to all(via 'all' param)
+        response = self.client.stop_play_member({'conference_name': 'plivo',
+                                                'member_id': 'all',
+                                                'url': self.sound_url})
+        self.assertEqual(204, response[0])
 
-            #mute member1 and member2 using comma separated params
-            both_members = "%s, %s" % (member1, member2)
-            response = self.client.mute_member({'conference_name': 'plivo',
-                                            'member_id': both_members})
-            self.assertEqual(202, response[0])
-
-            response = self.client.get_live_conference({'conference_name':
-                                                   'plivo'})
-            #check: member1 and member2 should be muted
-            self.assertTrue(response[1]['members'][0]['muted'])
-            self.assertTrue(response[1]['members'][1]['muted'])
-
-            #unmute member1 and member2
-            response = self.client.unmute_member({'conference_name': 'plivo',
-                                              'member_id': both_members})
-            self.assertEqual(204, response[0])
-
-            response = self.client.get_live_conference({'conference_name':
-                                                   'plivo'})
-            #check: member1 and member2 should not be muted
-            self.assertFalse(response[1]['members'][0]['muted'])
-            self.assertFalse(response[1]['members'][1]['muted'])
-
-            #mute all members
-            response = self.client.mute_member({'conference_name': 'plivo',
-                                            'member_id': 'all'})
-            self.assertEqual(202, response[0])
-
-            response = self.client.get_live_conference({'conference_name':
-                                                   'plivo'})
-            #check: member1 and member2 should be muted
-            self.assertTrue(response[1]['members'][0]['muted'])
-            self.assertTrue(response[1]['members'][1]['muted'])
-
-            #unmute all members
-            response = self.client.unmute_member({'conference_name': 'plivo',
-                                              'member_id': 'all'})
-            self.assertEqual(204, response[0])
-
-            response = self.client.get_live_conference({'conference_name':
-                                                   'plivo'})
-            #check: member1 and member2 should not be muted
-            self.assertFalse(response[1]['members'][0]['muted'])
-            self.assertFalse(response[1]['members'][1]['muted'])
 
 class TestMessage(PlivoTest):
     def test_get_messages(self):
