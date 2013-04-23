@@ -233,6 +233,19 @@ class TestEndpoint(PlivoTest):
         valid_keys = ["objects", "api_id", "meta"]
         self.check_status_and_keys(200, valid_keys, response)
 
+    def test_get_cdr(self):
+        response = self.client.get_cdrs()
+        if len(response[1]['objects']) > 0:
+            call_uuid = response[1]['objects'][0]['call_uuid']
+            response = self.client.get_cdrs({"record_id": call_uuid})
+            valid_keys = ['call_duration', 'billed_duration', 'totol_amount',
+                          'parent_call_uuid', 'call_direction','to_number'
+                          'totol_rate', 'api_id', 'from_number', 'end_time',
+                          'call_uuid', 'resource_uri']
+            self.check_status_and_keys(200, valid_keys,response)
+
+
+
     def test_endpoint_crud(self):
         params = {'username': 'agdrasg',
                   'password': 'ahfdsgdf',
