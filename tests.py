@@ -203,6 +203,29 @@ class TestApplication(PlivoTest):
         self.assertEqual(404, response[0])
         self.assertEqual('not found', response[1]['error'])
 
+class TestCall(PlivoTest):
+    def setup(self):
+        super(TestCall, self).setUp()
+        self.call_params = {'from': DEFAULT_FROM_NUMBER,
+                            'to': DEFAULT_TO_NUMBER,
+                            'answer_url':
+                            'https://guarded-island.herokuapp.com/conference/',
+                            'time_limit': 80
+                            }
+
+    def test_get_all_calls(self):
+        response = self.client.get_cdrs()
+        valid_keys = ['api_id', 'meta', 'objects']
+        self.check_status_and_keys(200, valid_keys, response)
+
+    def test_get_live_calls(self):
+        response = self.client.get_live_calls()
+        valid_keys = ['calls', 'api_id']
+        self.check_status_and_keys(200, valid_keys, response)
+
+    def test_make_outbound_call(self):
+        response = self.client.make_call(self.call_params)
+        self.assertEqual(201, response[0])
 
 class TestEndpoint(PlivoTest):
     def test_get_endpoints(self):
@@ -253,7 +276,6 @@ class TestPricing(PlivoTest):
     def test_invalid_country(self):
         response = self.client.pricing({'country_iso': 'USSDGF'})
         self.assertTrue("error" in response[1])
-
 
 class TestRecording(PlivoTest):
     def test_get_all_recordings(self):
@@ -448,7 +470,7 @@ class TestConference(PlivoTest):
         self.check_status_and_keys(404, valid_keys, response)  
 
     def test_members_mute_unmute(self):
-    #hangup conference at the beginning
+        #hangup conference at the beginning
         self.client.hangup_conference({'conference_name':
                                    'plivo'})
         self.client.make_call(self.call_params)
