@@ -261,7 +261,7 @@ class TestRecording(PlivoTest):
         valid_keys = ['meta', 'objects', 'api_id']
         self.check_status_and_keys(200, valid_keys, response)
 
-    def test_recording(self):
+    def test_get_recording(self):
         response = self.client.get_recordings() 
         if (len(response[1]['objects'])) > 0:
             recording_id = response[1]['objects']['0']['recording_id']
@@ -665,7 +665,7 @@ class TestConference(PlivoTest):
         #wait some time
         time.sleep(8)
         response = self.cliet.get_live_conference({'conference_name':
-                                                    'plivo'})
+                                                   'plivo'})
         member1 = response[1]['members'][0]['member_id']
         member2 = response[1]['members'][1]['member_id']
 
@@ -684,7 +684,24 @@ class TestConference(PlivoTest):
         #make all listen to speech
         speak_params['member_id'] = 'all'
         response = self.client.speak_member(speak_params.copy())
-        self.assertEqual(202, response[0]) 
+        self.assertEqual(202, response[0])
+
+    def test_recording(self):
+        #hangup conference at the beginning
+        self.client.hangup_conference({'conference_name':
+                                        'plivo'})
+        self.client.make_call(self.call_params)
+        #wait sometime
+        time.sleep(8)
+
+        #record conference
+        response = self.client.record_conference({'conference_name':'plivo'})
+        valid_keys = ['url', 'message', 'api_id']
+        self.check_status_and_keys(202, valid_keys, response)
+
+        #stop recording the conference
+        response = self.stop_record_conference({'conference_name':"[plivo"})
+        self.assertEqual(204, response)
 
 class TestMessage(PlivoTest):
     def test_get_messages(self):
