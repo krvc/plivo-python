@@ -227,6 +227,14 @@ class TestCall(PlivoTest):
         response = self.client.make_call(self.call_params)
         self.assertEqual(201, response[0])
 
+    def test_hangup_request(self):
+        response = self.client.make_call(self.call_params)
+        #wait some time
+        time.sleep(8)
+        response = self.client.hangup_request({'request_uuid':
+                                               response[1]['request_uuid']})
+        self.assertEqual(204, response[0])
+
 class TestEndpoint(PlivoTest):
     def test_get_endpoints(self):
         response = self.client.get_endpoints()
