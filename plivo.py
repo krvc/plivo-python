@@ -206,8 +206,10 @@ class RestAPI(object):
         return self._request('GET', '/Call/', data=params)
 
     def get_live_call(self, params=None):
+        if not params: params={}
         params['status'] = 'live'
-        return self.get_call(params)
+        call_uuid = params.pop('call_uuid')
+        return self._request('GET', '/Call/%s/' % call_uuid, data=params)
 
     def get_call(self, params=None):
         if not params: params={}
