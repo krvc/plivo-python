@@ -206,14 +206,17 @@ class TestApplication(PlivoTest):
 
 
 class TestCall(PlivoTest):
+
+    call_params = {}
+
     def setup(self):
-        super(TestCall, self).setUp()
         self.call_params = {'from': DEFAULT_FROM_NUMBER,
                             'to': DEFAULT_TO_NUMBER,
                             'answer_url':
                             'https://guarded-island.herokuapp.com/conference/',
                             'time_limit': 80
                             }
+        super(TestCall, self).setUp()
 
     def test_get_all_calls(self):
         response = self.client.get_cdrs()
@@ -235,10 +238,10 @@ class TestCall(PlivoTest):
             call_uuid = response[1]['objects'][0]['call_uuid']
             response = self.client.get_cdrs({"record_id": call_uuid})
             valid_keys = ['call_duration', 'billed_duration', 'totol_amount',
-                          'parent_call_uuid', 'call_direction','to_number'
+                          'parent_call_uuid', 'call_direction', 'to_number'
                           'totol_rate', 'api_id', 'from_number', 'end_time',
                           'call_uuid', 'resource_uri']
-            self.check_status_and_keys(200, valid_keys,response)
+            self.check_status_and_keys(200, valid_keys, response)
 
     def test_hangup_request(self):
         response = self.client.make_call(self.call_params)
@@ -247,6 +250,7 @@ class TestCall(PlivoTest):
         response = self.client.hangup_request({'request_uuid':
                                                response[1]['request_uuid']})
         self.assertEqual(204, response[0])
+
 
 class TestEndpoint(PlivoTest):
     def test_get_endpoints(self):
@@ -295,6 +299,7 @@ class TestPricing(PlivoTest):
     def test_invalid_country(self):
         response = self.client.pricing({'country_iso': 'USSDGF'})
         self.assertTrue("error" in response[1])
+
 
 class TestRecording(PlivoTest):
     def test_get_all_recordings(self):
@@ -390,6 +395,8 @@ class TestConference(PlivoTest):
                             'https://guarded-island.herokuapp.com/conference/',
                             'time_limit': 80
                             }
+        self.sound_url = \
+            "https://guarded-island.herokuapp.com/static/client_on_hold_music.mp3"                    
 
     def test_get_all_conferences(self):
         response = self.client.get_live_conferences()
@@ -413,26 +420,27 @@ class TestConference(PlivoTest):
         
     def test_members_hangup_member(self):
         #hangup conference at the beginning
-        self.client.hangup_conference({'conference_name':
-                                      'plivo'})
+        self.client.hangup_conference({'conference_name': 'plivo'})
         self.client.make_call(self.call_params)
         self.call_params['to'] = DEFAULT_TO_NUMBER2
-    	self.client.make_call(self.call_params)
-    	#wait some time
-    	time.sleep(8)
+        self.client.make_call(self.call_params)
+        #wait some time
+        time.sleep(8)
+        response = self.client.get_live_conference({'conference_name': 'plivo'})
+            
+        #2 members in conference
+        self.assertEqual(2, len(response[1]['members']))
+        member_id = response[1]['members'][0]['member_id']
+        another_member_id = response[1]['members'][1]['member_id']
+        response = self.client.hangup_member({'member_id': member_id,
+                                              'conference_name': 'plivo'})
+        self.assertEqual(204, response[0])
         response = self.client.get_live_conference({'conference_name':'plivo'})
-        	
-    	#2 members in conference
-    	self.assertEqual(2, len(response[1]['members']))
-    	member_id = response[1]['members'][0]['member_id']
-    	another_member_id = response[1]['members'][1]['member_id']
-    	response = self.client.hangup_member({'member_id': member_id,'conference_name': 'plivo'})
-    	self.assertEqual(204, response[0])
-    	response = self.client.get_live_conference({'conference_name':'plivo'})
-    	#1 member in conference as one member is made to hangup
-    	self.assertEqual(1, len(response[1]['members']))
-    	self.assertEqual(another_member_id,response[1]['members'][0]['member_id'])
-        	
+        #1 member in conference as one member is made to hangup
+        self.assertEqual(1, len(response[1]['members']))
+        self.assertEqual(another_member_id,response[1]['members'][0]
+                                                      ['member_id'])
+            
     def test_members_kick_member_member_id(self):
         #hangup conference at the beginning
         self.client.hangup_conference({'conference_name':
@@ -448,9 +456,9 @@ class TestConference(PlivoTest):
         self.assertEqual(2, len(response[1]['members']))
         member_id = response[1]['members'][0]['member_id']
         another_member_id = response[1]['members'][1]['member_id']
-        response = self.client.kick_member({'member_id':member_id,
-                                            'conference_name':'plivo'})
-        self.assertEqual(202,response[0])
+        response = self.client.kick_member({'member_id': member_id,
+                                            'conference_name': 'plivo'})
+        self.assertEqual(202, response[0])
         response = self.client.get_live_conference({'conference_name':
                                                     'plivo'})
         #1 member in conference as one member is kicked
@@ -467,7 +475,7 @@ class TestConference(PlivoTest):
         self.client.make_call(self.call_params)
         #wait some time
         time.sleep(8)
-        response = self.get_live_conference({'conference_name':
+        response = self.client.get_live_conference({'conference_name':
                                              'plivo' })
         #2members in conference
         self.assertEqual(2,len(response[1])['members'])
@@ -475,7 +483,7 @@ class TestConference(PlivoTest):
         another_member_id = response[1]['members'][1]['member_id']
         members_to_be_kicked = "%s,%s" %(member_id, another_member_id)
         response = self.client.kick_member({'member_id': members_to_be_kicked,
-                                            'conference_name':'plivo'})
+                                            'conference_name': 'plivo'})
         self.assertEqual(202, response[0])
         response = self.client.get_live_conference({'conference_name':
                                                     'plivo'})
@@ -502,7 +510,7 @@ class TestConference(PlivoTest):
         self.assertEqual(202, response[0])
         response = self.client.get_live_conference({'conference_name':
                                                     'plivo'}) 
-        valid_keys = ['api_id','error']
+        valid_keys = ['api_id', 'error']
         #Returns 404 since all are kicked from the conference
         #(hence no conference)
         self.check_status_and_keys(404, valid_keys, response)  
@@ -607,13 +615,13 @@ class TestConference(PlivoTest):
                                             'url': self.sound_url})
         self.assertEqual(202, response[0])
         #stop play to member1
-        response = self.client.stop_play_member({'conference_name':'plivo',
+        response = self.client.stop_play_member({'conference_name': 'plivo',
                                                  'member_id': member1,
                                                  'url': self.sound_url})
         self.assertEqual(204, response[0])
 
         #plat to both (via comma separated param)
-        response = self.client_play_member({'conference_name':'plivo',
+        response = self.client.play_member({'conference_name': 'plivo',
                                             'member_id':
                                             "%s, %s" %(member1, member2),
                                             'url': self.sound_url})
@@ -763,7 +771,7 @@ class TestConference(PlivoTest):
         self.check_status_and_keys(202, valid_keys, response[0])
 
         #stop recording the conference
-        response = self.stop_record_conference({'conference_name':"[plivo"})
+        response = self.client.stop_record_conference({'conference_name':'plivo'})
         self.assertEqual(204, response[0])
 
 class TestMessage(PlivoTest):
@@ -772,9 +780,8 @@ class TestMessage(PlivoTest):
         valid_keys = ['meta', 'objects', 'api_id']
         self.check_status_and_keys(200, valid_keys, response)
         
-	def test_send_and_get_message(self):
-		params = {"src": DEFAULT_FROM_NUMBER, "dst": DEFAULT_TO_NUMBER,
-                  "text": "Testing"}
+    def test_send_and_get_message(self):
+        params = {"src": DEFAULT_FROM_NUMBER, "dst": DEFAULT_TO_NUMBER, "text": "Testing"}
         response = self.client.send_message(params)
         valid_keys = ["message", "message_uuid", "api_id"]
         self.check_status_and_keys(202, valid_keys, response)
